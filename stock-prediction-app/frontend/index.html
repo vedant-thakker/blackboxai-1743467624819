@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockPredict AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .hero-bg {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.pexels.com/photos/6804582/pexels-photo-6804582.jpeg');
+            background-size: cover;
+            background-position: center;
+        }
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+    <header class="hero-bg h-screen flex flex-col">
+        <nav class="p-6 flex justify-between items-center">
+            <div class="text-2xl font-bold text-teal-400">StockPredict AI</div>
+            <div>
+                <a href="predict.html" class="bg-teal-500 hover:bg-teal-600 transition-all px-6 py-2 rounded-lg font-medium">Get Started</a>
+            </div>
+        </nav>
+        <div class="flex-grow flex flex-col justify-center items-center px-6 text-center">
+            <h1 class="text-5xl font-bold mb-6">AI-Powered Stock Predictions</h1>
+            <p class="text-xl max-w-2xl mb-10">Leverage 10 years of historical NSE data with our machine learning model to forecast stock trends with confidence.</p>
+            <a href="predict.html" class="bg-teal-500 hover:bg-teal-600 transition-all px-8 py-3 rounded-lg font-medium text-lg">Try Predictor</a>
+        </div>
+    </header>
+</body>
+</html>
