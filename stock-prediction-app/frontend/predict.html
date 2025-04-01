@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Prediction | StockPredict AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+    <header class="p-6 flex justify-between items-center border-b border-gray-800">
+        <div class="text-2xl font-bold text-teal-400">StockPredict AI</div>
+        <div>
+            <a href="index.html" class="hover:text-teal-400 transition-all mr-4"><i class="fas fa-home"></i> Home</a>
+            <a href="predict.html" class="bg-teal-500 hover:bg-teal-600 transition-all px-6 py-2 rounded-lg font-medium">New Prediction</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-12 max-w-4xl">
+        <div class="bg-gray-800 rounded-xl p-8 shadow-lg">
+            <h2 class="text-3xl font-bold mb-6 text-center">Stock Prediction Form</h2>
+            
+            <form id="predictionForm" class="space-y-6">
+                <div>
+                    <label for="stockSymbol" class="block text-lg mb-2">Stock Symbol</label>
+                    <input type="text" id="stockSymbol" required
+                        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all"
+                        placeholder="e.g. RELIANCE.NS, TATASTEEL.NS">
+                </div>
+
+                <div>
+                    <label for="timeframe" class="block text-lg mb-2">Prediction Timeframe</label>
+                    <select id="timeframe" required
+                        class="w-full bg-gray-700 border border-gray-600 rounded-lg px-4 py-3 focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all">
+                        <option value="" disabled selected>Select timeframe</option>
+                        <option value="7">Next 7 days</option>
+                        <option value="30">Next 30 days</option>
+                        <option value="90">Next 90 days</option>
+                    </select>
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" id="predictBtn"
+                        class="w-full bg-teal-500 hover:bg-teal-600 transition-all px-6 py-4 rounded-lg font-bold text-lg flex items-center justify-center">
+                        <span id="btnText">Predict Stock Trend</span>
+                        <span id="spinner" class="ml-2 hidden">
+                            <i class="fas fa-spinner fa-spin"></i>
+                        </span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        document.getElementById('predictionForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btnText = document.getElementById('btnText');
+            const spinner = document.getElementById('spinner');
+            const symbol = document.getElementById('stockSymbol').value;
+            const timeframe = document.getElementById('timeframe').value;
+            
+            btnText.textContent = 'Processing...';
+            spinner.classList.remove('hidden');
+            
+            try {
+                const response = await fetch('http://localhost:8000/api/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        symbol: symbol,
+                        timeframe: timeframe
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    // Store results in sessionStorage for results page
+                    sessionStorage.setItem('predictionResults', JSON.stringify(data));
+                    window.location.href = 'results.html';
+                } else {
+                    alert(`Error: ${data.message}`);
+                    btnText.textContent = 'Predict Stock Trend';
+                    spinner.classList.add('hidden');
+                }
+            } catch (error) {
+                alert('Failed to connect to prediction service');
+                btnText.textContent = 'Predict Stock Trend';
+                spinner.classList.add('hidden');
+            }
+        });
+    </script>
+</body>
+</html>
