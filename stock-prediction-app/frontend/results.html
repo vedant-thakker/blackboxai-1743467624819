@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Results | StockPredict AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen">
+    <header class="p-6 flex justify-between items-center border-b border-gray-800">
+        <div class="text-2xl font-bold text-teal-400">StockPredict AI</div>
+        <div>
+            <a href="index.html" class="hover:text-teal-400 transition-all mr-4"><i class="fas fa-home"></i> Home</a>
+            <a href="predict.html" class="bg-teal-500 hover:bg-teal-600 transition-all px-6 py-2 rounded-lg font-medium">New Prediction</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-12 max-w-6xl">
+        <div class="bg-gray-800 rounded-xl p-8 shadow-lg mb-8">
+            <h2 class="text-3xl font-bold mb-2">Prediction Results for <span id="stockName" class="text-teal-400">RELIANCE.NS</span></h2>
+            <p class="text-gray-400 mb-6">Based on 10 years of historical NSE data</p>
+            
+            <div class="chart-container mb-8">
+                <canvas id="predictionChart"></canvas>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-gray-700">
+                            <th class="pb-4 font-semibold">Date</th>
+                            <th class="pb-4 font-semibold">Predicted Price (₹)</th>
+                            <th class="pb-4 font-semibold">Confidence</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTable">
+                        <!-- Will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="flex justify-between">
+            <a href="predict.html" class="bg-gray-700 hover:bg-gray-600 transition-all px-6 py-3 rounded-lg font-medium">
+                <i class="fas fa-arrow-left mr-2"></i> Back to Form
+            </a>
+            <button id="downloadBtn" class="bg-teal-500 hover:bg-teal-600 transition-all px-6 py-3 rounded-lg font-medium">
+                <i class="fas fa-download mr-2"></i> Download Results
+            </button>
+        </div>
+    </main>
+
+    <script>
+        // Sample data - will be replaced with actual API response
+        const stockData = {
+            symbol: 'RELIANCE.NS',
+            predictions: [
+                { date: '2023-06-01', price: 2456.32, confidence: 'High' },
+                { date: '2023-06-02', price: 2478.91, confidence: 'High' },
+                { date: '2023-06-03', price: 2492.45, confidence: 'Medium' },
+                { date: '2023-06-04', price: 2501.78, confidence: 'Medium' },
+                { date: '2023-06-05', price: 2515.22, confidence: 'High' }
+            ]
+        };
+
+        // Set stock name
+        document.getElementById('stockName').textContent = stockData.symbol;
+
+        // Populate table
+        const tableBody = document.getElementById('resultsTable');
+        stockData.predictions.forEach(pred => {
+            const row = document.createElement('tr');
+            row.className = 'border-b border-gray-700 hover:bg-gray-700 transition-all';
+            row.innerHTML = `
+                <td class="py-3">${pred.date}</td>
+                <td class="py-3">₹${pred.price.toFixed(2)}</td>
+                <td class="py-3">
+                    <span class="px-2 py-1 rounded-full text-xs font-medium 
+                        ${pred.confidence === 'High' ? 'bg-green-900 text-green-300' : 
+                          pred.confidence === 'Medium' ? 'bg-yellow-900 text-yellow-300' : 
+                          'bg-red-900 text-red-300'}">
+                        ${pred.confidence}
+                    </span>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        // Initialize chart with both historical and predicted data
+        const ctx = document.getElementById('predictionChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [
+                    ...stockData.historical.map(h => h.date),
+                    ...stockData.predictions.map(p => p.date)
+                ],
+                datasets: [
+                    {
+                        label: 'Historical Price (₹)',
+                        data: [
+                            ...stockData.historical.map(h => h.price),
+                            ...Array(stockData.predictions.length).fill(null)
+                        ],
+                        borderColor: '#4B5563',
+                        backgroundColor: 'rgba(75, 85, 99, 0.1)',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Predicted Price (₹)',
+                        data: [
+                            ...Array(stockData.historical.length).fill(null),
+                            ...stockData.predictions.map(p => p.price)
+                        ],
+                        borderColor: '#00ADB5',
+                        backgroundColor: 'rgba(0, 173, 181, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        borderDash: [5, 5]
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#E5E7EB',
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#1F2937',
+                        titleColor: '#E5E7EB',
+                        bodyColor: '#E5E7EB',
+                        borderColor: '#4B5563',
+                        borderWidth: 1
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: {
+                            color: '#374151'
+                        },
+                        ticks: {
+                            color: '#9CA3AF'
+                        }
+                    },
+                    y: {
+                        grid: {
+                            color: '#374151'
+                        },
+                        ticks: {
+                            color: '#9CA3AF'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Download button handler
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            alert('Download functionality will be implemented with the backend API');
+        });
+    </script>
+</body>
+</html>
